@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Celestial Sync</title>
+
+    <!-- iOS Web App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Celestia">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/1x1.png/192px-1x1.png">
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --glass-shadow: 0 8px 32px rgba(148, 163, 184, 0.15);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent-glow: 0 0 30px rgba(255, 255, 255, 0.9);
+            --blur: blur(25px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            /* Subtle animated white/grey gradient */
+            background: linear-gradient(-45deg, #f8fafc, #f1f5f9, #e2e8f0, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Top Header */
+        header {
+            padding: 3rem 1.5rem 1rem;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        header h1 {
+            font-size: 0.8rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        header p {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        /* Main Display: Aura Breath */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .aura-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* The glowing breath circle */
+        .aura {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 40px rgba(255, 255, 255, 0.8),
+                inset 0 0 20px rgba(255, 255, 255, 1);
+            filter: blur(2px);
+            /* Transform applied via JS */
+            will-change: transform;
+        }
+
+        /* Inner text readout */
+        .readout {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+        }
+
+        #breath-instruction {
+            font-size: 1.25rem;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            color: var(--text-main);
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255,255,255,0.8);
+        }
+
+        #mode-indicator {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+            opacity: 0.7;
+        }
+
+        /* Footer Controls: Resonance Keys */
+        footer {
+            padding: 2rem 1.5rem 3rem;
+            z-index: 15;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            pointer-events: auto; /* Buttons need clicks */
+        }
+
+        .resonance-btn {
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            padding: 1.2rem 0;
+            width: 140px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            box-shadow: var(--glass-shadow);
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .resonance-btn span {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+        }
+
+        .resonance-btn:active {
+            transform: scale(0.95);
+        }
+
+        .resonance-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 8px 32px rgba(148, 163, 184, 0.2);
+        }
+
+    </style>
+</head>
+<body onclick="toggleBreathingMode()">
+
+    <header>
+        <h1>Celestial Sync</h1>
+        <p>Biological Calibration</p>
+    </header>
+
+    <main>
+        <div class="aura-container">
+            <div class="aura" id="aura"></div>
+            <div class="readout">
+                <div id="breath-instruction">Breathe In</div>
+                <div id="mode-indicator">Restoration Mode</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <!-- Prevent clicks from bubbling up to the body (which toggles breath mode) -->
+        <button class="resonance-btn" id="btn-432" onclick="toggleResonance(432, event)">
+            432Hz
+            <span>Earth Sync</span>
+        </button>
+        <button class="resonance-btn" id="btn-528" onclick="toggleResonance(528, event)">
+            528Hz
+            <span>DNA Repair</span>
+        </button>
+    </footer>
+
+    <script>
+        /**
+         * 1. AURA BREATH LOGIC
+         * Handles the procedural animation and state machine for the breathing visual.
+         */
+        const elAura = document.getElementById('aura');
+        const elInstruction = document.getElementById('breath-instruction');
+        const elMode = document.getElementById('mode-indicator');
+
+        // Modes: 'restoration' (Box Breathing 4-4-4-4) | 'activation' (Active 2-0-2-0)
+        let breathMode = 'restoration'; 
+        
+        // Easing function for smooth organic breath scaling
+        function easeInOutSine(x) {
+            return -(Math.cos(Math.PI * x) - 1) / 2;
+        }
+
+        function animateBreath() {
+            const time = performance.now();
+            let scale = 1;
+            let text = "";
+
+            if (breathMode === 'restoration') {
+                // 16,000ms Total Cycle
+                const cycleTime = time % 16000;
+                
+                if (cycleTime < 4000) {
+                    // IN (0s - 4s)
+                    let t = cycleTime / 4000;
+                    scale = 0.6 + (easeInOutSine(t) * 0.9); // 0.6 to 1.5
+                    text = "Breathe In";
+                } else if (cycleTime < 8000) {
+                    // HOLD IN (4s - 8s)
+                    scale = 1.5;
+                    text = "Hold";
+                } else if (cycleTime < 12000) {
+                    // OUT (8s - 12s)
+                    let t = (cycleTime - 8000) / 4000;
+                    scale = 1.5 - (easeInOutSine(t) * 0.9); // 1.5 to 0.6
+                    text = "Breathe Out";
+                } else {
+                    // HOLD OUT (12s - 16s)
+                    scale = 0.6;
+                    text = "Hold";
+                }
+            } else {
+                // Activation Mode
+                // 4,000ms Total Cycle
+                const cycleTime = time % 4000;
+                
+                if (cycleTime < 2000) {
+                    // IN (0s - 2s)
+                    let t = cycleTime / 2000;
+                    scale = 0.7 + (easeInOutSine(t) * 0.7); // 0.7 to 1.4
+                    text = "Breathe In";
+                } else {
+                    // OUT (2s - 4s)
+                    let t = (cycleTime - 2000) / 2000;
+                    scale = 1.4 - (easeInOutSine(t) * 0.7); // 1.4 to 0.7
+                    text = "Breathe Out";
+                }
+            }
+
+            elAura.style.transform = `scale(${scale})`;
+            if (elInstruction.textContent !== text) {
+                elInstruction.textContent = text;
+            }
+
+            requestAnimationFrame(animateBreath);
+        }
+
+        // Tap screen to switch modes
+        function toggleBreathingMode() {
+            if (breathMode === 'restoration') {
+                breathMode = 'activation';
+                elMode.textContent = 'Activation Mode';
+            } else {
+                breathMode = 'restoration';
+                elMode.textContent = 'Restoration Mode';
+            }
+        }
+
+        // Start animation loop
+        requestAnimationFrame(animateBreath);
+
+
+        /**
+         * 2. RESONANCE KEYS LOGIC (WEB AUDIO API)
+         * Generates pure, high-fidelity clickless sine waves.
+         */
+        let audioCtx;
+        let masterGain;
+        let currentOscillator;
+        let activeFrequency = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                // Initialize Audio Context on first user interaction
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                
+                // Create Master Gain Node for volume control
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0; // Start silenced
+                masterGain.connect(audioCtx.destination);
+            }
+        }
+
+        function playFrequency(freq) {
+            // Stop existing tone smoothly if playing
+            if (currentOscillator) {
+                masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1); // Fast smooth fade out
+                
+                const oldOsc = currentOscillator;
+                setTimeout(() => { oldOsc.stop(); oldOsc.disconnect(); }, 500); // Cleanup
+            }
+
+            // Create new Oscillator
+            currentOscillator = audioCtx.createOscillator();
+            currentOscillator.type = 'sine';
+            currentOscillator.frequency.value = freq;
+            currentOscillator.connect(masterGain);
+            
+            // Start silent, then fade in smoothly
+            currentOscillator.start();
+            masterGain.gain.setTargetAtTime(0.5, audioCtx.currentTime + 0.05, 0.5); // Smooth fade in to 50% volume
+        }
+
+        function stopAudio() {
+            if (currentOscillator) {
+                masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1); // Smooth fade out
+                
+                const oldOsc = currentOscillator;
+                setTimeout(() => { oldOsc.stop(); oldOsc.disconnect(); }, 500);
+                currentOscillator = null;
+            }
+        }
+
+        function toggleResonance(freq, event) {
+            // Stop event from bubbling to the body (which toggles breathing)
+            event.stopPropagation();
+            
+            initAudio();
+
+            // Resume audio context if browser suspended it
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const btn432 = document.getElementById('btn-432');
+            const btn528 = document.getElementById('btn-528');
+
+            // Reset UI
+            btn432.classList.remove('active');
+            btn528.classList.remove('active');
+
+            if (activeFrequency === freq) {
+                // Turn off if already playing
+                stopAudio();
+                activeFrequency = null;
+            } else {
+                // Play new frequency
+                playFrequency(freq);
+                activeFrequency = freq;
+                
+                // Update UI
+                if (freq === 432) btn432.classList.add('active');
+                if (freq === 528) btn528.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

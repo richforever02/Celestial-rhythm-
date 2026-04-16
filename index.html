@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Celestial Sync</title>
+    <title>Resonance Frequency Tuner</title>
 
     <!-- iOS Web App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Celestia">
+    <meta name="apple-mobile-web-app-title" content="Resonance Frequency Tuner">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/1x1.png/192px-1x1.png">
 
     <style>
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.8);
-            --glass-shadow: 0 8px 32px rgba(148, 163, 184, 0.15);
-            --text-main: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+            --text-main: #000000;
             --text-muted: #64748b;
-            --accent-glow: 0 0 30px rgba(255, 255, 255, 0.9);
             --blur: blur(25px);
         }
 
@@ -26,15 +25,17 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
 
         body {
-            background: linear-gradient(-45deg, #f8fafc, #f1f5f9, #e2e8f0, #ffffff);
+            background: linear-gradient(-45deg, #ffffff, #f8fafc, #f1f5f9, #ffffff);
             background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            animation: gradientBG 20s ease infinite;
             color: var(--text-main);
             height: 100vh;
             width: 100vw;
@@ -51,24 +52,25 @@
         }
 
         header {
-            padding: 3rem 1.5rem 1rem;
+            /* Increased top padding to push header below the info button */
+            padding: 5rem 1.5rem 1rem;
             text-align: center;
             z-index: 10;
             pointer-events: none;
         }
 
         header h1 {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             letter-spacing: 0.35em;
             text-transform: uppercase;
-            color: var(--text-muted);
-            font-weight: 500;
+            color: var(--text-main);
+            font-weight: 600;
         }
 
         header p {
             font-size: 0.65rem;
             letter-spacing: 0.15em;
-            color: #94a3b8;
+            color: var(--text-muted);
             margin-top: 0.5rem;
             text-transform: uppercase;
         }
@@ -85,8 +87,8 @@
 
         .aura-container {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 100%;
+            height: 380px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -94,14 +96,15 @@
 
         .aura {
             position: absolute;
-            width: 150px;
-            height: 150px;
-            background: rgba(255, 255, 255, 0.8);
+            /* Increased base size so words stay inside */
+            width: 280px;
+            height: 280px;
+            background: rgba(255, 255, 255, 1);
             border-radius: 50%;
             box-shadow: 
-                0 0 40px rgba(255, 255, 255, 0.8),
-                inset 0 0 20px rgba(255, 255, 255, 1);
-            filter: blur(2px);
+                0 0 50px rgba(255, 255, 255, 0.9),
+                0 10px 40px rgba(0, 0, 0, 0.03);
+            filter: blur(1px);
             will-change: transform;
         }
 
@@ -109,15 +112,20 @@
             position: relative;
             z-index: 10;
             text-align: center;
+            /* Constrain text width so it wraps neatly if needed, inside the aura */
+            width: 260px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         #breath-instruction {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 300;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.25em;
             color: var(--text-main);
             text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(255,255,255,0.8);
         }
 
         #mode-indicator {
@@ -125,16 +133,16 @@
             color: var(--text-muted);
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            margin-top: 0.5rem;
-            opacity: 0.7;
+            margin-top: 0.75rem;
+            font-weight: 500;
         }
 
         footer {
-            padding: 2rem 1.5rem 3rem;
+            padding: 2rem 1.5rem 3.5rem;
             z-index: 15;
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
+            gap: 1.25rem;
             pointer-events: auto; 
         }
 
@@ -143,46 +151,50 @@
             backdrop-filter: var(--blur);
             -webkit-backdrop-filter: var(--blur);
             border: 1px solid var(--glass-border);
-            padding: 1.2rem 0;
-            width: 140px;
-            border-radius: 20px;
+            padding: 1.25rem 0;
+            width: 150px;
+            border-radius: 24px;
             font-size: 0.9rem;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-muted);
             box-shadow: var(--glass-shadow);
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.4rem;
         }
 
         .resonance-btn span {
             font-size: 0.6rem;
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            opacity: 0.7;
+            opacity: 0.8;
+            text-align: center;
+            padding: 0 5px;
         }
 
         .resonance-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
         }
 
         .resonance-btn.active {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             color: var(--text-main);
-            border-color: #fff;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 8px 32px rgba(148, 163, 184, 0.2);
+            border-color: #ffffff;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
         }
 
-        /* --- ADDED INFO BUTTON & MODAL CSS --- */
+        /* --- INFO BUTTON & MODAL CSS --- */
         .info-btn {
             position: absolute;
-            top: 3rem;
+            /* Moved button higher so it clears the header */
+            top: max(2rem, env(safe-area-inset-top, 2rem));
             right: 1.5rem;
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -191,29 +203,34 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: serif;
-            font-style: italic;
+            font-family: "SF Pro Display", serif;
+            font-weight: 400;
             font-size: 1.1rem;
             color: var(--text-muted);
             box-shadow: var(--glass-shadow);
             z-index: 20;
             pointer-events: auto;
             cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .info-btn:active {
+            transform: scale(0.9);
         }
 
         #info-modal {
             position: fixed;
             inset: 0;
-            background: rgba(248, 250, 252, 0.75);
-            backdrop-filter: blur(35px);
-            -webkit-backdrop-filter: blur(35px);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
             z-index: 100;
             transform: translateY(100%);
             transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
             padding: 5rem 1.5rem 3rem;
-            pointer-events: none; /* Prevents catching clicks when hidden */
+            pointer-events: none;
         }
 
         #info-modal.open {
@@ -223,47 +240,83 @@
 
         .info-close {
             position: absolute;
-            top: 3rem;
+            /* Match info-btn position */
+            top: max(2rem, env(safe-area-inset-top, 2rem));
             right: 1.5rem;
-            width: 36px;
-            height: 36px;
-            background: #fff;
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
+            font-weight: 300;
             color: var(--text-main);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             cursor: pointer;
+            border: 1px solid var(--glass-border);
         }
 
         .info-content {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: var(--glass-shadow);
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #ffffff;
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.05);
             overflow-y: auto;
             flex: 1;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .info-content h2 { font-size: 1.2rem; font-weight: 300; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1.5rem; text-align: center; color: var(--text-main); }
-        .info-content h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-main); margin-bottom: 0.4rem; margin-top: 1.5rem; }
-        .info-content p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0.5rem; }
-        .info-content hr { border: none; border-top: 1px solid rgba(255,255,255,0.8); margin: 1.5rem 0; }
-        /* --- END ADDED CSS --- */
+        .info-content h2 { 
+            font-size: 1.1rem; 
+            font-weight: 500; 
+            text-transform: uppercase; 
+            letter-spacing: 0.2em; 
+            margin-bottom: 1.5rem; 
+            text-align: center; 
+            color: var(--text-main); 
+        }
+
+        .info-content h3 { 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 0.15em; 
+            color: var(--text-main); 
+            margin-bottom: 0.5rem; 
+            margin-top: 1.75rem; 
+        }
+
+        .info-content p { 
+            font-size: 0.95rem; 
+            font-weight: 400;
+            color: #475569; 
+            line-height: 1.6; 
+            margin-bottom: 0.75rem; 
+        }
+
+        .info-content hr { 
+            border: none; 
+            border-top: 1px solid rgba(0, 0, 0, 0.05); 
+            margin: 2rem 0; 
+        }
+
+        strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
 
     </style>
 </head>
 <body onclick="toggleBreathingMode()">
 
-    <!-- ADDED: Info Button -->
     <div class="info-btn" onclick="toggleInfo(event)">i</div>
 
     <header>
-        <h1>Celestial Sync</h1>
-        <p>Biological Calibration</p>
+        <h1>Resonance Frequency Tuner</h1>
+        <p>Restores Natural Alignment</p>
     </header>
 
     <main>
@@ -271,7 +324,7 @@
             <div class="aura" id="aura"></div>
             <div class="readout">
                 <div id="breath-instruction">Breathe In</div>
-                <div id="mode-indicator">Restoration Mode</div>
+                <div id="mode-indicator">Harmonic Restorative Cycle</div>
             </div>
         </div>
     </main>
@@ -279,81 +332,80 @@
     <footer>
         <button class="resonance-btn" id="btn-432" onclick="toggleResonance(432, event)">
             432Hz
-            <span>Earth Sync</span>
+            <span>Earth's Natural Restorative Resonance</span>
         </button>
         <button class="resonance-btn" id="btn-528" onclick="toggleResonance(528, event)">
             528Hz
-            <span>DNA Repair</span>
+            <span>Biological Restorative Resonance</span>
         </button>
     </footer>
 
-    <!-- ADDED: Info Modal Content -->
     <div id="info-modal" onclick="event.stopPropagation()">
         <div class="info-close" onclick="toggleInfo(event)">&times;</div>
         <div class="info-content">
-            <h2>Calibration Guide</h2>
+            <h2>Bio-Resonance Logic</h2>
             
-            <p>Celestial Sync is an offline biological tuning tool designed to synchronize your breath and internal resonant frequencies.</p>
+            <p>The Resonance Frequency Tuner is an offline biological calibration tool engineered to synchronize internal physiological states with Natural Environmental Rhythms. By minimizing Systemic Noise, it facilitates advanced Biological Restorative Resonance.</p>
             
             <hr>
 
-            <h3>The Aura Breath</h3>
-            <p>Tap anywhere on the background to toggle your breathing cycle.</p>
-            <p><strong>Restoration Mode:</strong> A 16-second "Box Breathing" cycle (4s In, 4s Hold, 4s Out, 4s Hold). Designed to down-regulate the nervous system and induce deep calm.</p>
-            <p><strong>Activation Mode:</strong> A continuous 4-second rhythmic cycle (2s In, 2s Out). Designed to oxygenate the bloodstream and stimulate focus.</p>
+            <h3>Circadian Harmonic Sync</h3>
+            <p>Tap anywhere on the background canvas to toggle your respiratory pacing.</p>
+            <p><strong>Harmonic Restorative Cycle:</strong> A continuous harmonic cycle designed to down-regulate the central nervous system, resolve neurological static, and establish optimal Signal Clarity throughout the body.</p>
+            <p><strong>Stimulative Harmonic Cycle:</strong> An active respiratory rhythm engineered to rapidly oxygenate the bloodstream, stimulate cognitive focus, and restore the organism's highest functional capacity.</p>
 
             <hr>
 
-            <h3>Resonance Keys</h3>
-            <p>Tap the buttons below to engage pure Sine Wave frequencies generated locally on your device hardware.</p>
-            <p><strong>432Hz (Earth Sync):</strong> Known as the harmonic intonation of nature. It vibrates on the principals of the Golden Mean (Phi), promoting profound grounding, mental clarity, and alignment with planetary resonance.</p>
-            <p><strong>528Hz (DNA Repair):</strong> Part of the ancient Solfeggio frequencies. Often referred to as the "Miracle Tone," it is associated with biological harmony, physical restoration, and bringing human DNA back to its original blueprint.</p>
+            <h3>Restores Natural Alignment</h3>
+            <p>Engage the buttons below to initiate pure bio-resonance sine waves, mathematically generated directly via your device's audio hardware.</p>
+            <p><strong>Earth's Natural Restorative Resonance:</strong> Structurally calibrated to foundational planetary resonance. This frequency promotes profound grounding, mental lucidity, and continuous alignment with the Grounding Constant.</p>
+            <p><strong>Biological Restorative Resonance:</strong> A targeted harmonic tone intrinsically associated with restoring systemic integrity and subtly guiding biological architecture back toward its Stimulative Harmonic Cycle.</p>
         </div>
     </div>
-    <!-- END ADDED HTML -->
 
     <script>
         const elAura = document.getElementById('aura');
         const elInstruction = document.getElementById('breath-instruction');
         const elMode = document.getElementById('mode-indicator');
 
-        let breathMode = 'restoration'; 
+        let breathMode = 'coherence'; 
         
         function easeInOutSine(x) {
             return -(Math.cos(Math.PI * x) - 1) / 2;
         }
 
+        // Mathematical pacing remains locked, but base scale starts at 1.0 so it never shrinks below the words
         function animateBreath() {
             const time = performance.now();
-            let scale = 1;
+            let scale = 1.0;
             let text = "";
 
-            if (breathMode === 'restoration') {
+            if (breathMode === 'coherence') {
                 const cycleTime = time % 16000;
                 if (cycleTime < 4000) {
                     let t = cycleTime / 4000;
-                    scale = 0.6 + (easeInOutSine(t) * 0.9);
+                    scale = 1.0 + (easeInOutSine(t) * 0.35); // Scales from 1.0 up to 1.35
                     text = "Breathe In";
                 } else if (cycleTime < 8000) {
-                    scale = 1.5;
+                    scale = 1.35;
                     text = "Hold";
                 } else if (cycleTime < 12000) {
                     let t = (cycleTime - 8000) / 4000;
-                    scale = 1.5 - (easeInOutSine(t) * 0.9);
+                    scale = 1.35 - (easeInOutSine(t) * 0.35); // Scales down to 1.0
                     text = "Breathe Out";
                 } else {
-                    scale = 0.6;
+                    scale = 1.0;
                     text = "Hold";
                 }
             } else {
                 const cycleTime = time % 4000;
                 if (cycleTime < 2000) {
                     let t = cycleTime / 2000;
-                    scale = 0.7 + (easeInOutSine(t) * 0.7); 
+                    scale = 1.0 + (easeInOutSine(t) * 0.25); // Scales from 1.0 up to 1.25
                     text = "Breathe In";
                 } else {
                     let t = (cycleTime - 2000) / 2000;
-                    scale = 1.4 - (easeInOutSine(t) * 0.7); 
+                    scale = 1.25 - (easeInOutSine(t) * 0.25); // Scales down to 1.0
                     text = "Breathe Out";
                 }
             }
@@ -367,12 +419,12 @@
         }
 
         function toggleBreathingMode() {
-            if (breathMode === 'restoration') {
-                breathMode = 'activation';
-                elMode.textContent = 'Activation Mode';
+            if (breathMode === 'coherence') {
+                breathMode = 'baseline';
+                elMode.textContent = 'Stimulative Harmonic Cycle';
             } else {
-                breathMode = 'restoration';
-                elMode.textContent = 'Restoration Mode';
+                breathMode = 'coherence';
+                elMode.textContent = 'Harmonic Restorative Cycle';
             }
         }
 
@@ -446,18 +498,15 @@
             }
         }
 
-        /* --- ADDED: Info Modal Logic --- */
         function toggleInfo(event) {
-            // Prevent the click from triggering the background breathing toggle
             event.stopPropagation();
             document.getElementById('info-modal').classList.toggle('open');
         }
 
-        // ADDED: Register Service Worker for Offline PWA Support
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(() => {
-                    console.log('Celestial Sync Service Worker Registered');
+                    console.log('Resonance Frequency Tuner Service Worker Registered');
                 }).catch(err => console.error('SW Registration failed:', err));
             });
         }
